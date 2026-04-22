@@ -19,7 +19,7 @@ class Base extends StatelessWidget {
 //状態：変化する可能性のあるデータ
 class CounterApp extends StatefulWidget {
   const CounterApp({super.key});
-
+  
   @override
   State<CounterApp> createState() => _CounterAppState();
 }
