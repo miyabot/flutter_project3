@@ -10,19 +10,33 @@ class Base extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home:ListViewSumple()
+      home:ListViewSample()
     );
   }
 }
 
-class ListViewSumple extends StatelessWidget {
-  ListViewSumple({super.key});
+class ListViewSample extends StatefulWidget {
+  ListViewSample({super.key});
 
+  @override
+  State<ListViewSample> createState() => _ListViewSampleState();
+}
+
+class _ListViewSampleState extends State<ListViewSample> {
   List<String> list = ['りんご','バナナ','ぶどう','いちご','みかん'];
+
+    //リストに果物を追加する関数
+    void addList(String fruit){
+      list.add(fruit);
+    }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //appBar:画面上部に表示
+      appBar: AppBar(
+        backgroundColor: Colors.greenAccent,
+      ),
       //builder:可変式リスト(実行中に要素数を変更できる)
       body:ListView.builder(
         itemCount:list.length, //要素数
@@ -31,7 +45,19 @@ class ListViewSumple extends StatelessWidget {
         itemBuilder: (context,index){
           return Text(list[index]);
         }
-      )
+      ),
+      //画面の右下に表示されるボタン
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          //画面更新
+          setState(() {
+            //リストに追加
+            addList('メロン');
+          });
+          //リストの中身を確認
+          debugPrint('List:$list');
+        }
+      ),
     );
   }
 }
