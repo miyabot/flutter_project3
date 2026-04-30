@@ -16,6 +16,15 @@ class Base extends StatelessWidget {
   }
 }
 
+//ListTileに表示する要素をまとめたクラス
+class ToDoItem{
+  //コンストラクタの設定
+  ToDoItem({required this.title,required this.subTitle});
+
+  String title;
+  String subTitle;
+}
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -26,7 +35,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   //ToDoリストの内容を管理
-  List<String> _list = []; 
+  List<ToDoItem> _list = []; 
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +50,8 @@ class _HomePageState extends State<HomePage> {
         //要素ごとの処理
         itemBuilder:(context,index){
           return ListTile(
-            title: Text(_list[index]),
+            title: Text(_list[index].title),
+            subtitle: Text(_list[index].subTitle),
             trailing: IconButton(
               onPressed: (){
                 setState(() {
@@ -58,7 +68,7 @@ class _HomePageState extends State<HomePage> {
         //async,await :非同期処理
         onPressed: ()async{
           //受け取り用
-          String result;
+          ToDoItem result;
 
           //await:結果が返ってくるまで待つ
           result = await Navigator.push(
