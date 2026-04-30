@@ -11,7 +11,7 @@ class Base extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home:AddPage()
+      home:HomePage()
     );
   }
 }
@@ -42,9 +42,37 @@ class _HomePageState extends State<HomePage> {
         itemBuilder:(context,index){
           return ListTile(
             title: Text(_list[index]),
+            trailing: IconButton(
+              onPressed: (){
+                setState(() {
+                  _list.removeAt(index);
+                });
+              }, 
+              icon:Icon(Icons.delete)
+            ),
           );
         } 
-      )
+      ),
+      //追加ボタン
+      floatingActionButton: FloatingActionButton(
+        //async,await :非同期処理
+        onPressed: ()async{
+          //受け取り用
+          String result;
+
+          //await:結果が返ってくるまで待つ
+          result = await Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context)=>AddPage())  
+          );
+
+          //_listに追加
+          setState(() {
+            _list.add(result);
+          });
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
