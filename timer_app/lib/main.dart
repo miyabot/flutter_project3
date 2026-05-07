@@ -26,6 +26,7 @@ class TimerApp extends StatefulWidget {
 
 class _TimerAppState extends State<TimerApp> {
 
+
   //ストップウォッチ用
   //late:初期化を後回しにする
   late Stopwatch _stopwatch;
