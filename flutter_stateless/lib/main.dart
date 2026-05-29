@@ -47,7 +47,14 @@ class Home extends StatelessWidget {
           Text('勇者の名前：${hero.name}'),
           Text('勇者のhp：${hero.hp}'),
           Text('勇者のmp：${hero.mp}'),
+          Row(
+            children: [
+              Expanded(child: TextField()),
+              Icon(Icons.abc)
+            ],
+          )
         ],
+        
       )
     );
   }
