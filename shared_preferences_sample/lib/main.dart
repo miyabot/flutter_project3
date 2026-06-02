@@ -2,8 +2,20 @@ import 'package:flutter/material.dart';
 //ローカル保存用
 import 'package:shared_preferences/shared_preferences.dart'; 
 
+//JSON変換用
+import 'dart:convert';
+
 void main() {
   runApp(const MyApp());
+}
+
+//保存したいデータを定義したクラス
+class Memo{
+  final String title;
+  final DateTime createdAt;
+
+  //コンストラクタの設定
+  Memo({required this.title,required this.createdAt});
 }
 
 class MyApp extends StatelessWidget {
@@ -65,6 +77,13 @@ class _MyHomePageState extends State<MyHomePage> {
   //リスト表示用
   List<String> _saveList = [];
 
+  //マップ表示用
+  Map<DateTime,String> _saveMap = {};
+
+  //クラス内の変数表示用
+  //?:null許容型
+  Memo? _saveClass;
+
   //初期化関数(buildよりも前に呼ばれる)
   @override
   void initState() {
@@ -73,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //ロード
     _loadSaveData();
     _loadSaveDataList();
+    _loadSaveDateMap();
   }
 
 
@@ -126,6 +146,67 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  //Map<DateTime,String>を保存する関数
+  Future<void> _saveDataMap()async{
+    final prefs = await SharedPreferences.getInstance();
+
+    //現在時刻と入力内容をMapに追加
+    setState(() {
+      _saveMap[DateTime.now()] = _con.text;
+    });
+
+    //Map<DateTime,String>をMap<String,dynamic>に変換
+    final Map<String,dynamic> encodeMap = {};
+
+    //_saveMapの各要素をencodeMapに代入
+    _saveMap.forEach((key,value){
+      //「DateTime型」を「JSONが理解できるString型」に変換
+      encodeMap[key.toIso8601String()] = value;
+    });
+
+    //中身の確認
+    debugPrint('$encodeMap');
+
+    //JSON文字列に変換
+    final jsonString = json.encode(encodeMap);
+
+    //'save_map'というキーで保存
+    await prefs.setString('save_map', jsonString);
+  }
+
+  //保存されているJSON文字列を読み込む関数
+  Future<void> _loadSaveDateMap()async{
+    final prefs = await SharedPreferences.getInstance();
+
+    //JSON文字列を取り出す。データがなければ空のJSON文字列を返す
+    final jsonString = prefs.getString('save_map') ?? '{}';
+
+    //JSON文字列をMap<String,dynamic>に変換 
+    final decodeMap = json.decode(jsonString) as Map<String,dynamic>;
+
+    //Map<String,dynamic>をMap<DateTime,String>に変換
+    final Map<DateTime,String> tempMap = {};
+    decodeMap.forEach((key,value){
+      //StringからDateTimeへ変換(parse)
+      tempMap[DateTime.parse(key)] = value;
+    });
+
+    setState(() {
+      _saveMap = tempMap;
+    });
+
+  }
+
+  //クラスを保存する関数
+  Future<void> _saveClassData()async{
+    final prefs = await SharedPreferences.getInstance();
+  }
+
+  //保存されているクラスを読み込む処理
+  Future<void> _loadSaveClassData()async{
+    final prefs = await SharedPreferences.getInstance();
+  }
+
   //保存されているテキストを削除する関数
   Future<void> _clearData()async{
     final prefs = await SharedPreferences.getInstance();
@@ -138,6 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //アプリ側の削除
       _saveText = '';
       _saveList = [];
+      _saveMap = {};
     });
   }
 
@@ -150,18 +232,17 @@ class _MyHomePageState extends State<MyHomePage> {
             controller: _con,
           ),
           SizedBox(height:12),
-          ElevatedButton(
-            onPressed: (){
-              _saveData();
-            }, 
-            child: const Text('テキスト保存')
-          ),
+          ElevatedButton(onPressed:_saveData,child: const Text('テキスト保存')),
+          SizedBox(height:12),
+          ElevatedButton(onPressed: _saveDataList,child: const Text('リスト保存')),
+          SizedBox(height:12),
+          ElevatedButton(onPressed: _saveDataMap,child: const Text('マップ保存')),
           SizedBox(height:12),
           ElevatedButton(
             onPressed: (){
-              _saveDataList();
+              _saveClassData();
             }, 
-            child: const Text('リスト保存')
+            child: const Text('クラス保存')
           ),
           SizedBox(height:12),
           ElevatedButton(
@@ -174,7 +255,10 @@ class _MyHomePageState extends State<MyHomePage> {
           Text('保存されているテキスト(String)'),
           Text(_saveText,style: TextStyle(fontSize: 36),),
           Text('保存されているテキスト(List<String>)'),
-          Text(_saveList.join('\n'),style: TextStyle(fontSize: 36),)
+          Text(_saveList.join('\n'),style: TextStyle(fontSize: 36),),
+          Text('保存されているテキスト(Map<String,int>'),
+          //_saveMapの各要素を取りだしてそれぞれのkeyとvalueを表示
+          Text(_saveMap.entries.map((e)=>'${e.key} : ${e.value}').join('\n'),style: TextStyle(fontSize: 36),)
         ],
       )
     );
