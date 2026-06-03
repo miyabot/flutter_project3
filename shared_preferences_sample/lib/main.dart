@@ -16,6 +16,21 @@ class Memo{
 
   //コンストラクタの設定
   Memo({required this.title,required this.createdAt});
+
+  //クラスをJSONに変換する関数(保存時に使う)
+  Map<String,dynamic> toJson()=>{
+    'title':title,
+    'createdAt':createdAt.toIso8601String()
+  };
+
+  //JSONからクラスを復元する関数(読み込み時に使う)
+  factory Memo.fromJson(Map<String,dynamic> json){
+    return Memo(
+      title: json['title'], 
+      createdAt: DateTime.parse(json['createdAt'] as String)
+    );
+  }
+
 }
 
 class MyApp extends StatelessWidget {
@@ -93,6 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _loadSaveData();
     _loadSaveDataList();
     _loadSaveDateMap();
+    _loadSaveClassData();
   }
 
 
@@ -200,11 +216,28 @@ class _MyHomePageState extends State<MyHomePage> {
   //クラスを保存する関数
   Future<void> _saveClassData()async{
     final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _saveClass = Memo(title: _con.text, createdAt: DateTime.now());
+    });
+
+    final Map<String,dynamic> encodeMap = _saveClass!.toJson();
+
+    //Json文字列に変換
+    final String jsonString = json.encode(encodeMap);
+
+    await prefs.setString('save_class', jsonString);
   }
 
-  //保存されているクラスを読み込む処理
+  //保存されているクラスを読み込む関数
   Future<void> _loadSaveClassData()async{
     final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('save_class') ?? '{}';
+    final decodeMap = json.decode(jsonString) as Map<String,dynamic>;
+    setState(() {
+      _saveClass = Memo.fromJson(decodeMap);
+    });
+    
   }
 
   //保存されているテキストを削除する関数
@@ -214,12 +247,15 @@ class _MyHomePageState extends State<MyHomePage> {
     //指定したkeyのデータを削除
     await prefs.remove('save_text');
     await prefs.remove('save_list');
+    await prefs.remove('save_map');
+    await prefs.remove('save_class');
 
     setState(() {
       //アプリ側の削除
       _saveText = '';
       _saveList = [];
       _saveMap = {};
+      _saveClass = null;
     });
   }
 
@@ -258,7 +294,9 @@ class _MyHomePageState extends State<MyHomePage> {
           Text(_saveList.join('\n'),style: TextStyle(fontSize: 36),),
           Text('保存されているテキスト(Map<String,int>'),
           //_saveMapの各要素を取りだしてそれぞれのkeyとvalueを表示
-          Text(_saveMap.entries.map((e)=>'${e.key} : ${e.value}').join('\n'),style: TextStyle(fontSize: 36),)
+          Text(_saveMap.entries.map((e)=>'${e.key} : ${e.value}').join('\n'),style: TextStyle(fontSize: 36),),
+          Text('保存されているテキスト(class'),
+          Text('タイトル：${_saveClass?.title}\n作成時間：${_saveClass?.createdAt}',style: TextStyle(fontSize: 36),)
         ],
       )
     );
