@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const Base());
@@ -236,6 +239,9 @@ class _KujiDetailState extends State<KujiDetail> {
                         ),
                         SizedBox(height: 16,),
                         TextField(
+                          maxLength: 3, //入力文字数の制限
+                          keyboardType: TextInputType.number,//キーボードの種類
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],//入力内容の制限
                           controller: _valueCon,
                           decoration: const InputDecoration(
                             labelText: 'くじの枚数(0～999)',
@@ -272,12 +278,113 @@ class _KujiDetailState extends State<KujiDetail> {
           ),
           SizedBox(height: 24,),
           FloatingActionButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => KujiPlay(kujibako: widget.kujibako)
+                )
+              );
+            },
             heroTag: 'btn2', //識別名
             child:const Text('くじを引く'),
           ),
         ],
       ),
+    );
+  }
+}
+
+class KujiPlay extends StatefulWidget {
+  const KujiPlay({super.key,required this.kujibako});
+  final KujiBako kujibako;
+
+  @override
+  State<KujiPlay> createState() => _KujiPlayState();
+}
+
+class _KujiPlayState extends State<KujiPlay> {
+  //残り枚数格納用
+  int stock = 0;
+
+  //大元のデータを壊さないためのコピー
+  List<Kuji> copy = [];
+
+  //くじの結果格納用
+  String result = '';
+
+  //初期化関数
+  @override
+  void initState() {
+    super.initState();
+
+    //残り枚数の算出
+    for(int i = 0;i < widget.kujibako.items.length;i++){
+      copy.add(Kuji(
+        name: widget.kujibako.items[i].name, 
+        value: widget.kujibako.items[i].value
+      ));
+      stock += widget.kujibako.items[i].value;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 34, 92, 191),
+      appBar: AppBar(
+        //戻るボタンの設定
+        iconTheme: const IconThemeData(
+          color: Colors.white
+        ),
+        title: Text(widget.kujibako.title,style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color.fromARGB(255, 34, 92, 191),
+      ),
+      body:Center(
+        child: Column(
+          children: [
+            Text('残り$stock枚',style: TextStyle(color: Colors.white,fontSize: 20)),
+            const SizedBox(height: 150,),
+            Text(result,style: TextStyle(color: Colors.white,fontSize: 40)),
+            const SizedBox(height: 200,),
+            GestureDetector(
+              onTap: (){
+                //残り枚数が０枚なら終了
+                if(stock <= 0){
+                  setState(() {
+                    result = '中身がありません';
+                  });
+                  return;
+                }
+
+                //0 ~ (stock - 1)の乱数を生成
+                int rnd = Random().nextInt(stock);
+
+                //各くじの担当範囲の開始位置
+                int border = 0;
+                //くじを順番に並べる
+                for(int i = 0;i < copy.length;i++){
+                  if(rnd >= border && rnd < border + copy[i].value){
+                    setState(() {
+                      result = copy[i].name;
+                      copy[i].value--;
+                      stock--;
+                    });
+                    //当選したくじが決まったのでループ終了
+                    break;
+                  }
+                  //次のくじの担当範囲へ移動
+                  border += copy[i].value;
+                }
+              },  
+              child: Icon(Icons.help_center,color: Colors.white,size:150), 
+            ),
+            const SizedBox(height: 50,),
+            Text('箱をタップする',style: TextStyle(color: Colors.white,fontSize: 20)),
+          ],
+        ),
+      )
+      
     );
   }
 }
