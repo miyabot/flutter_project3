@@ -49,8 +49,15 @@ class _LocalizationSettingState extends State<LocalizationSetting> {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home:HomePage()
+    return MaterialApp(
+      
+      //パッケージが生成する「対応言語リスト」をMaterialAppに渡す
+      supportedLocales: _localization.supportedLocales,
+
+      //「どの言語の時にどのテキストを使うか」を管理する仕組み
+      localizationsDelegates: _localization.localizationsDelegates,
+
+      home:const HomePage()
     );
   }
 }
@@ -64,7 +71,14 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  
+  //カウンタ変数
+  int _count = 0;
+
+  //言語を切り替える関数
+  void _changeLanguage(String code){
+    //言語コードを渡す
+    FlutterLocalization.instance.translate(code);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,22 +90,33 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('こんにちは！'),
-            Text('ボタンを押すと言語が切り替わります。'),
-            Text('ボタンを押した回数'),
-            Text('0回'),
+            Text(AppLocale.greeting.getString(context),style: TextStyle(fontSize: 24),),
+            Text(AppLocale.description.getString(context),style: TextStyle(fontSize: 24),),
+            Text(AppLocale.buttonLabel.getString(context),style: TextStyle(fontSize: 24),),
+            //翻訳テキストの｛0｝を_countに置き換えて表示
+            Text(AppLocale.counter.getString(context).replaceAll('{0}', '$_count'),style: TextStyle(fontSize: 24),),
             ElevatedButton(
-              onPressed: (){}, 
+              onPressed: (){
+                setState(() {
+                  _count++;
+                });
+              }, 
               child: Text('+1')
             ),
-            Text('言語を切り替える'),
+            Text(AppLocale.changeLanguage.getString(context),style: TextStyle(fontSize: 24),),
             ElevatedButton(
-              onPressed: (){}, 
-              child: Text('日本語')
+              onPressed: (){
+                //日本語に変換
+                _changeLanguage('ja');
+              }, 
+              child: Text(AppLocale.langJa.getString(context),style: TextStyle(fontSize: 24),),
             ),
             ElevatedButton(
-              onPressed: (){}, 
-              child: Text('英語')
+              onPressed: (){
+                //英語に変換
+                _changeLanguage('en');
+              }, 
+              child: Text(AppLocale.langEn.getString(context),style: TextStyle(fontSize: 24),),
             ),
           ],
         ),

@@ -6,6 +6,8 @@ mixin AppLocale{
   static const String buttonLabel = 'buttonLabel'; //ボタンの説明ラベル
   static const String counter = 'counter'; //counter表示
   static const String changeLanguage = 'changeLanguage'; //言語切り替えボタンのラベル
+  static const String langJa = 'langJa';
+  static const String langEn = 'langEn';
 
   //日本語の翻訳データ
   static const Map<String,dynamic> ja = {
@@ -14,6 +16,8 @@ mixin AppLocale{
     buttonLabel:'ボタンを押した回数',
     counter:'{0} 回',
     changeLanguage:'言語を切り替える',
+    langJa:'日本語',
+    langEn:'英語'
   };
 
   //英語の翻訳データ
@@ -23,5 +27,7 @@ mixin AppLocale{
     buttonLabel:'Button pressed count',
     counter:'{0} times',
     changeLanguage:'Change Language',
+    langJa:'Japanese',
+    langEn:'English'
   };
 }
