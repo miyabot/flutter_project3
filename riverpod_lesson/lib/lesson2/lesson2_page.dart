@@ -30,7 +30,7 @@ final counterProvider = NotifierProvider<Counter,int>(Counter.new);
 
 class Lesson2Page extends ConsumerWidget {
   const Lesson2Page({super.key});
-
+  
   @override
   Widget build(BuildContext context,WidgetRef ref) {
     //ref.watchで値を読み、値が変わるとここが自動的に再ビルドされる

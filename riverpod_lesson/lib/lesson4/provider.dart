@@ -10,6 +10,10 @@ class Todo{
 }
 
 class TodoList extends Notifier<List<Todo>> {
+
+  //Todoに割り当てるID
+  int _nextId = 0;
+
   @override
    build() {
     return [];
@@ -18,8 +22,24 @@ class TodoList extends Notifier<List<Todo>> {
   //追加
   void add(String title){
     //クラスのインスタンス化
-    final todo = Todo(id:0,title:title);
+    final todo = Todo(id:_nextId++,title:title);
     state = [...state,todo];
+  }
+
+  //チェックボックスの切り替え
+  void toggle(int id){
+    state = [
+      for(final todo in state)
+        //idが一致していたら反転処理
+        if(todo.id == id) Todo(id: todo.id, title: todo.title,done:!todo.done)
+        else todo
+    ];
+  }
+
+  //削除
+  void remove(int id){
+    //条件に一致する情報だけ残す
+    state = state.where((todo)=>todo.id != id).toList();
   }
 }
 

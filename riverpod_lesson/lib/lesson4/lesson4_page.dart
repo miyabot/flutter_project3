@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_lesson/lesson4/provider.dart';
 
+
+//ConsumerWidget：自分のフィールドを用意しない
+//ConsumerStatefulWidget：自分のフィールドを用意する
 class Lesson4Page extends ConsumerStatefulWidget {
   const Lesson4Page({super.key});
 
@@ -33,6 +36,7 @@ class _Lesson4PageState extends ConsumerState<Lesson4Page> {
                   onPressed: (){
                     ref.read(todoListProvider.notifier).add(_controller.text);
                     debugPrint('$todos');
+                    _controller.clear();
                   }, 
                   child: Text('追加')
                 )
@@ -43,7 +47,20 @@ class _Lesson4PageState extends ConsumerState<Lesson4Page> {
             child: ListView.builder(
               itemCount: todos.length,
               itemBuilder: (context,index){
-                return Text(todos[index].title,style:TextStyle(fontSize: 36));
+                return CheckboxListTile(
+                  value: todos[index].done,  //チェックの有無
+                  onChanged: (_){
+                    //切り替え
+                    ref.read(todoListProvider.notifier).toggle(todos[index].id);
+                  },
+                  title: Text(todos[index].title,style: TextStyle(fontSize: 36),),
+                  secondary: IconButton(
+                    onPressed: (){
+                      ref.read(todoListProvider.notifier).remove(todos[index].id);
+                    }, 
+                    icon: Icon(Icons.delete)
+                  ),
+                );
               }
             )
           )
