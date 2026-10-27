@@ -21,6 +21,9 @@ class _TodoScreenState extends State<TodoScreen> {
     return ListenableBuilder(
       listenable: viewModel, //監視対象
       builder: (context,child){
+        //絞り込みに応じたリスト情報を渡す
+        final VisibleTodos = viewModel.todos;
+
         return Scaffold(
           appBar: AppBar(
             title: const Text('ToDoリスト'),
@@ -59,21 +62,26 @@ class _TodoScreenState extends State<TodoScreen> {
                   )
                 ],
               ),
-              SegmentedButton(
+              SegmentedButton<TodoFilter>(
                 segments: [
-                  ButtonSegment(value: 0,label: Text('すべて')),
-                  ButtonSegment(value: 1,label: Text('未完了')),
-                  ButtonSegment(value: 2,label: Text('完了')),
+                  ButtonSegment(value: TodoFilter.all,label: Text('すべて')),
+                  ButtonSegment(value: TodoFilter.active,label: Text('未完了')),
+                  ButtonSegment(value: TodoFilter.completed,label: Text('完了')),
                 ], 
-                selected: {0},
+                //今どれが選ばれているか(valueと関係あり)
+                selected: {viewModel.filter},
+                //ボタンが押されたら呼ばれる
+                onSelectionChanged: (selected){
+                  viewModel.changeFilter(selected.first);
+                },
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: viewModel.todos.length,
+                  itemCount: VisibleTodos.length,
                   itemBuilder: (context,index){
         
                     //todo一件のデータを取ってくる
-                    final todo = viewModel.todos[index];
+                    final todo = VisibleTodos[index];
         
                     //Dismissble:横にスワイプすると消せる
                     return Dismissible(
