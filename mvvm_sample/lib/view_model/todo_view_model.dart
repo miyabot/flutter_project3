@@ -38,4 +38,22 @@ class TodoViewModel extends ChangeNotifier {
     //変化を通知
     notifyListeners();
   }
+
+  //完了・未完了の切り替え処理
+  void toggleDone(Todo todo){
+    //反転処理
+    todo.isDone = !todo.isDone;
+
+    //変化を通知
+    notifyListeners();
+  }
+
+  //チェックの入っているものをまとめて削除する
+  void deleteCompleted(){
+    //removeWhere:条件に合うものを全て消す
+    _todos.removeWhere((todo)=>todo.isDone);
+
+    notifyListeners();
+  }
+  
 }

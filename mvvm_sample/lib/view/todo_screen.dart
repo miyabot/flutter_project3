@@ -26,9 +26,12 @@ class _TodoScreenState extends State<TodoScreen> {
             title: const Text('ToDoリスト'),
             actions: [
               IconButton(
-                onPressed:(){} , 
+                onPressed:(){
+                  //削除
+                  viewModel.deleteCompleted();
+                } , 
                 icon:Icon(Icons.delete_sweep) 
-                )
+              )
             ],
           ),
           body: Column(
@@ -62,7 +65,7 @@ class _TodoScreenState extends State<TodoScreen> {
                   ButtonSegment(value: 1,label: Text('未完了')),
                   ButtonSegment(value: 2,label: Text('完了')),
                 ], 
-                selected: {0}
+                selected: {0},
               ),
               Expanded(
                 child: ListView.builder(
@@ -90,12 +93,19 @@ class _TodoScreenState extends State<TodoScreen> {
                         //チェックボックスを左側に配置
                         controlAffinity: ListTileControlAffinity.leading,
                         //チェックの有無
-                        value: false, 
+                        value: todo.isDone, 
                         //チェックの状態が切り替わったら呼ばれる
                         onChanged: (value){
-        
+                          viewModel.toggleDone(todo);
                         },
-                        title:Text(todo.title)
+                        title:Text(
+                          todo.title,
+                          style: TextStyle(
+                            //三項演算子（条件式 ? 真 : 偽）
+                            decoration: todo.isDone ? TextDecoration.lineThrough : null,
+                            color: todo.isDone ? Colors.grey : null
+                          ),
+                        )
                       )
                     );
                   }
